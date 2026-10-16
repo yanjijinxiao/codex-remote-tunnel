@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+codex_home="${CODEX_HOME:-$HOME/.codex}"
+socks_port="${CODEX_SOCKS_PORT:-1080}"
+http_port="${CODEX_HTTP_PROXY_PORT:-8080}"
+
+# Translate only this tunnel's default; preserve deliberately configured proxies.
+for variable in ALL_PROXY HTTPS_PROXY HTTP_PROXY; do
+  case "${!variable:-}" in
+    ""|"socks5h://127.0.0.1:$socks_port"|"socks5://127.0.0.1:$socks_port")
+      printf -v "$variable" '%s' "http://127.0.0.1:$http_port"
+      ;;
+  esac
+  export "$variable"
+done
+export BASH_ENV="${BASH_ENV:-$codex_home/codex_bash_env.sh}"
+export CODEX_EXTRA_CA_FILE="${CODEX_EXTRA_CA_FILE:-$codex_home/extra-ca.pem}"
+export SSL_CERT_FILE="${SSL_CERT_FILE:-$codex_home/codex-ca-bundle.pem}"
+export CURL_CA_BUNDLE="${CURL_CA_BUNDLE:-$SSL_CERT_FILE}"
+export REQUESTS_CA_BUNDLE="${REQUESTS_CA_BUNDLE:-$SSL_CERT_FILE}"
+export NODE_EXTRA_CA_CERTS="${NODE_EXTRA_CA_CERTS:-$CODEX_EXTRA_CA_FILE}"
+
+exec "${CODEX_REAL_BIN:-$HOME/.local/bin/codex-real}" "$@"

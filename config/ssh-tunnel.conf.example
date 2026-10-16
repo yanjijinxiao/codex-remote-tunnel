@@ -1,0 +1,14 @@
+# Configure the real endpoint outside this repository, in your SSH config.
+Host codex-remote-control codex-remote-tunnel
+    HostName example.invalid
+    User remote-user
+    Port 22
+    ControlMaster no
+    ControlPersist no
+    ServerAliveInterval 30
+    ServerAliveCountMax 3
+    TCPKeepAlive yes
+
+Host codex-remote-tunnel
+    RemoteForward 127.0.0.1:1080
+    ExitOnForwardFailure yes
